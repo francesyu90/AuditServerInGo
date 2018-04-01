@@ -129,6 +129,16 @@ func (u Utilities) GetError(
 	return asErr
 }
 
+func (u Utilities) GetWarning(
+	uuid exception.UUID, warnKey string) *exception.ASWarning {
+
+	warnMsg := u.GetWarningMessage(warnKey)
+	asErr := exception.NewASWarning(uuid, warnMsg)
+	log.Println(asErr.WarningMessage())
+
+	return asErr
+}
+
 /*
 	Private methods
 */
