@@ -133,10 +133,10 @@ func (u Utilities) GetWarning(
 	uuid exception.UUID, warnKey string) *exception.ASWarning {
 
 	warnMsg := u.GetWarningMessage(warnKey)
-	asErr := exception.NewASWarning(uuid, warnMsg)
-	log.Println(asErr.WarningMessage())
+	asWarning := exception.NewASWarning(uuid, warnMsg)
+	log.Println(asWarning.WarningMessage())
 
-	return asErr
+	return asWarning
 }
 
 /*
