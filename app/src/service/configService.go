@@ -21,6 +21,18 @@ func (configService ConfigService) GetDBConn() *mgo.Session {
 	return config.GetMongoSession(dialInfo)
 }
 
+func (configService ConfigService) ConnectEventDB(
+	session *mgo.Session) *mgo.Database {
+
+	newSession := session.Clone()
+	defer newSession.Close()
+
+	dbName := configService.u.GetDBName()
+	db := newSession.DB(dbName)
+
+	return db
+}
+
 /*
 	Private methods
 */

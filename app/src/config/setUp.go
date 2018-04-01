@@ -52,6 +52,8 @@ func GetMongoSession(dialInfo *mgo.DialInfo) *mgo.Session {
 
 	mgoSession := <-c
 
+	mgoSession.SetMode(mgo.Monotonic, true)
+
 	return mgoSession
 }
 

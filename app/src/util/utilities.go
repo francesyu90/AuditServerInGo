@@ -100,7 +100,7 @@ func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
 
 	url := u.GetDBUrl()
 	timeout := u.GetIntConfigValue("db.timeout")
-	dbName := u.GetStringConfigValue("db.db_name")
+	dbName := u.GetDBName()
 	poolLimit := u.GetIntConfigValue("db.pool_limit")
 
 	return &mgo.DialInfo{
@@ -109,6 +109,11 @@ func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
 		Database:  dbName,
 		PoolLimit: poolLimit,
 	}
+}
+
+func (u Utilities) GetDBName() string {
+
+	return u.GetStringConfigValue("db.db_name")
 }
 
 /*

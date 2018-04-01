@@ -51,6 +51,7 @@ func newController(u *util.Utilities) *Controller {
 	service := services.GetService(u)
 	configService := services.GetConfigService(u)
 	session := configService.GetDBConn()
+
 	return &Controller{service, session}
 }
 
