@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	mgo "gopkg.in/mgo.v2"
 
 	"./app/src/config"
 	"./app/src/controller"
@@ -36,7 +37,27 @@ func setUp() {
 	router.Run(portStr)
 }
 
+func test() {
+	u := setUpHelper()
+
+	dialInfo := u.GetDBDialInfo()
+	// url := u.GetDBUrl()
+
+	// dialInfo := &mgo.DialInfo{
+	// 	Addrs:   []string{url},
+	// 	Timeout: 10 * time.Second,
+	// }
+
+	session, err := mgo.DialWithInfo(dialInfo)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(session)
+}
+
 func main() {
 
 	setUp()
+
+	// test()
 }

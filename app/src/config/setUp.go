@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/viper"
+	mgo "gopkg.in/mgo.v2"
 )
 
 func ReadInConfig() *viper.Viper {
@@ -17,7 +18,7 @@ func ReadInConfig() *viper.Viper {
 	v.SetConfigName("app")
 	err := v.ReadInConfig()
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 
 	readInConfigHelper(v, "app.docker")
@@ -28,6 +29,30 @@ func ReadInConfig() *viper.Viper {
 	readInConfigHelper(v, "errorCode")
 
 	return v
+}
+
+func GetMongoSession(dialInfo *mgo.DialInfo) *mgo.Session {
+
+	c := make(chan *mgo.Session)
+
+	go func() {
+
+		// Connect to MongoDB and establish a connection
+		// Only do this once in your application.
+		// There is a lot of overhead with this call
+		session, err := mgo.DialWithInfo(dialInfo)
+		if err != nil {
+			panic(err)
+			c <- nil
+		} else {
+			c <- session
+		}
+
+	}()
+
+	mgoSession := <-c
+
+	return mgoSession
 }
 
 /*

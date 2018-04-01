@@ -1,6 +1,6 @@
 
 [environment]
-active = 1
+active = 0
 #   0: development
 #   1: docker
 port = 8082
@@ -10,6 +10,7 @@ port = 8082
 port = "27017"
 db_name = "eventstore"
 doc_name = "events"
+pool_limit = 100
 
 [uri]
 api = "/api"

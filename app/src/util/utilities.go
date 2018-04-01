@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
+
+	"gopkg.in/mgo.v2"
 
 	"github.com/spf13/viper"
 )
@@ -58,7 +61,7 @@ func (u Utilities) GetMapArrConfigValue(key string) []map[string]interface{} {
 }
 
 func (u Utilities) GetActiveEnv() int {
-	return u.GetIntConfigValue("general.active")
+	return u.GetIntConfigValue("environment.active")
 }
 
 func (u Utilities) GetActiveEnvHost() string {
@@ -82,6 +85,32 @@ func (u Utilities) GetWarningMessage(key string) string {
 	return u.GetStringConfigValue(msgKey)
 }
 
+func (u Utilities) GetDBUrl() string {
+
+	prefix := u.getActiveEnvPrefix()
+	hostKey := fmt.Sprintf("%s.db.host", prefix)
+	host := u.GetStringConfigValue(hostKey)
+	port := u.GetIntConfigValue("db.port")
+	url := fmt.Sprintf("%s:%d", host, port)
+
+	return url
+}
+
+func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
+
+	url := u.GetDBUrl()
+	timeout := u.GetIntConfigValue("db.timeout")
+	dbName := u.GetStringConfigValue("db.db_name")
+	poolLimit := u.GetIntConfigValue("db.pool_limit")
+
+	return &mgo.DialInfo{
+		Addrs:     []string{url},
+		Timeout:   time.Duration(timeout) * time.Second,
+		Database:  dbName,
+		PoolLimit: poolLimit,
+	}
+}
+
 /*
 	Private methods
 */
@@ -95,10 +124,6 @@ func (u Utilities) getActiveEnvPrefix() string {
 		return envMap[0]["type"].(string)
 	case toIntFromInt64Inteface(envMap[1]["index"]):
 		return envMap[1]["type"].(string)
-	case toIntFromInt64Inteface(envMap[2]["index"]):
-		return envMap[2]["type"].(string)
-	case toIntFromInt64Inteface(envMap[3]["index"]):
-		return envMap[3]["type"].(string)
 	default:
 		return ""
 	}

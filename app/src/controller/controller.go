@@ -4,17 +4,20 @@ import (
 	"log"
 	"net/http"
 
+	"gopkg.in/mgo.v2"
+
 	"github.com/gin-gonic/gin"
 
 	"../data"
 	"../exception"
-	"../service"
+	services "../service"
 	"../util"
 )
 
 type (
 	Controller struct {
-		service *service.Service
+		service *services.Service
+		session *mgo.Session
 	}
 )
 
@@ -29,6 +32,8 @@ func (controller Controller) Testing(c *gin.Context) {
 	ch := controller.service.ProcessReqBody(c, &acctTxnEvent)
 	resp := <-ch
 
+	log.Println(controller.session)
+
 	if resp != nil {
 		handleError(exception.AS00001, resp, c)
 	} else {
@@ -42,8 +47,11 @@ func (controller Controller) Testing(c *gin.Context) {
 */
 
 func newController(u *util.Utilities) *Controller {
-	service := service.GetService(u)
-	return &Controller{service}
+
+	service := services.GetService(u)
+	configService := services.GetConfigService(u)
+	session := configService.GetDBConn()
+	return &Controller{service, session}
 }
 
 func handleError(uuid exception.UUID, sysErr error, c *gin.Context) {
