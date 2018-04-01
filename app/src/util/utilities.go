@@ -14,7 +14,7 @@ type (
 	}
 )
 
-func NewUtilites(v *viper.Viper) *Utilities {
+func NewUtilities(v *viper.Viper) *Utilities {
 	// will have another function to set up Redis pool
 	return &Utilities{v}
 }

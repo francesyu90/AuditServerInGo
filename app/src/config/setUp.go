@@ -22,8 +22,7 @@ func ReadInConfig() *viper.Viper {
 
 	readInConfigHelper(v, "app.docker")
 	readInConfigHelper(v, "app.development")
-	readInConfigHelper(v, "app.production")
-	readInConfigHelper(v, "app.qa")
+	readInConfigHelper(v, "app.test")
 	readInConfigHelper(v, "messages")
 	readInConfigHelper(v, "maps")
 

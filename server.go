@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"./app/src/config"
 	"./app/src/data"
 	"./app/src/util"
 )
@@ -27,20 +28,26 @@ func testing(c *gin.Context) {
 
 }
 
-func getMainEngine() (*gin.Engine, string) {
+func getMainEngine(u *util.Utilities) (*gin.Engine, string) {
 	router := gin.Default()
-	api := router.Group("/api")
+	api := router.Group(u.GetStringConfigValue("uri.api"))
 	{
-		api.POST("/testing", testing)
+		api.POST(u.GetStringConfigValue("test.uri.testing"), testing)
 	}
 
-	portStr := fmt.Sprintf(":%d", 8082)
+	portStr := fmt.Sprintf(":%d", u.GetIntConfigValue("environment.port"))
 
 	return router, portStr
 }
 
+func setUpHelper() *util.Utilities {
+	v := config.ReadInConfig()
+	return util.NewUtilities(v)
+}
+
 func setUp() {
-	router, portStr := getMainEngine()
+	u := setUpHelper()
+	router, portStr := getMainEngine(u)
 	router.Run(portStr)
 }
 

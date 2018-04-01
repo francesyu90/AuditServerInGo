@@ -3,7 +3,7 @@
 active = 1
 #   0: development
 #   1: docker
-port = 8080
+port = 8082
 
 
 [db]
