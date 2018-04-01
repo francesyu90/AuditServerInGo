@@ -1,4 +1,4 @@
 [docker]
 
     [docker.db]
-    host = "mongdodb"
+    host = "mongodb"
