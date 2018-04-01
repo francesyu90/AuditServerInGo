@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  audit-server:
+    build: .
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on: 
+      - mongodb
+    links:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27027:27017"

@@ -1,0 +1,28 @@
+[[event-map]]
+num = 0
+event-type = "usercommand"
+
+[[event-map]]
+num = 1
+event-type = "systemevent"
+
+[[event-map]]
+num = 2
+event-type = "errorevent"
+
+[[event-map]]
+num = 3
+event-type = "quoteserver"
+
+[[event-map]]
+num = 4
+event-type = "accounttransaction"
+
+[[env-map]]
+index = 0
+type = "development"
+
+[[env-map]]
+index = 1
+type = "docker"
+

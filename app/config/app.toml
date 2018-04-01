@@ -1,0 +1,23 @@
+
+[environment]
+active = 1
+#   0: development
+#   1: docker
+port = 8080
+
+
+[db]
+port = "27017"
+db_name = "eventstore"
+doc_name = "events"
+
+[uri]
+api = "/api"
+system-event = "/systemevent"
+user-command = "/usercommand"
+quote-server = "/quoteserver"
+error-event = "/errorevent"
+account-transaction = "/accounttransaction"
+log-all = "/log"
+log = "/log/:userName"
+clear-db = "/clear-db"
