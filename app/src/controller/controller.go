@@ -29,19 +29,19 @@ func (controller Controller) Testing(c *gin.Context) {
 
 	controller.session = nil
 
-	asErr := controller.checkDBConn()
-	if asErr != nil {
-		c.JSON(http.StatusInternalServerError,
-			gin.H{
-				"status": http.StatusInternalServerError,
-				"error":  asErr.ErrorMessage(),
-			})
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
 		return
 	}
 
 	log.Println("Hello World")
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+
+}
+
+func (controller Controller) HandleQSEvent(c *gin.Context) {
 
 }
 
@@ -56,6 +56,36 @@ func newController(u *util.Utilities) *Controller {
 	session, _ := configService.GetDBConn()
 
 	return &Controller{service, session, u}
+}
+
+func (controller Controller) checkAndHandleDBError(
+	c *gin.Context) <-chan bool {
+
+	ch := make(chan bool)
+
+	go func() {
+
+		asErr := controller.checkDBConn()
+		if asErr != nil {
+			controller.handleError(c, asErr)
+			ch <- true
+		} else {
+			ch <- false
+		}
+
+	}()
+
+	return ch
+}
+
+func (controller Controller) handleError(
+	c *gin.Context, asErr *exception.ASError) {
+
+	c.JSON(http.StatusInternalServerError,
+		gin.H{
+			"status": http.StatusInternalServerError,
+			"error":  asErr.ErrorMessage(),
+		})
 }
 
 func (controller Controller) checkDBConn() *exception.ASError {
