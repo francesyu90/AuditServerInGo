@@ -2,6 +2,7 @@
 
 
     [messages.error]
+    db_conn_err = "Failed to connect MongoDB database."
 
 
     [messages.warning]

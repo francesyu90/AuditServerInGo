@@ -43,8 +43,7 @@ func GetMongoSession(dialInfo *mgo.DialInfo) *mgo.Session {
 		session, err := mgo.DialWithInfo(dialInfo)
 
 		if err != nil {
-			panic(err)
-			c <- nil
+			log.Fatalln(err)
 		} else {
 			c <- session
 		}
@@ -52,10 +51,6 @@ func GetMongoSession(dialInfo *mgo.DialInfo) *mgo.Session {
 	}()
 
 	mgoSession := <-c
-
-	if mgoSession != nil {
-		mgoSession.SetMode(mgo.Monotonic, true)
-	}
 
 	return mgoSession
 }

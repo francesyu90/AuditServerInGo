@@ -3,12 +3,15 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
 	"gopkg.in/mgo.v2"
 
 	"github.com/spf13/viper"
+
+	"../exception"
 )
 
 type (
@@ -114,6 +117,16 @@ func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
 func (u Utilities) GetDBName() string {
 
 	return u.GetStringConfigValue("db.db_name")
+}
+
+func (u Utilities) GetError(
+	uuid exception.UUID, errKey string, err error) *exception.ASError {
+
+	errMsg := u.GetErrorMessage(errKey)
+	asErr := exception.NewASError(uuid, errMsg, err)
+	log.Println(asErr.ErrorMessage())
+
+	return asErr
 }
 
 /*

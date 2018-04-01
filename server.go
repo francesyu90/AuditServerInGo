@@ -7,6 +7,7 @@ import (
 
 	"./app/src/config"
 	"./app/src/controller"
+	"./app/src/exception"
 	"./app/src/util"
 )
 
@@ -36,8 +37,16 @@ func setUp() {
 	router.Run(portStr)
 }
 
+func test() {
+
+	u := setUpHelper()
+	u.GetError(exception.AS00001, "db_conn_err", nil)
+}
+
 func main() {
 
 	setUp()
+
+	// test()
 
 }

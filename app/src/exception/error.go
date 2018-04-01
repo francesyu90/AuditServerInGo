@@ -3,13 +3,13 @@ package exception
 import "fmt"
 
 type ASError struct {
-	UUID   UUID
-	ErrMsg string // system error
-	Msg    string // customized error message
+	UUID     UUID
+	Msg      string // customized error message
+	SysError error
 }
 
-func NewASError(uuid UUID, errMsg string, msg string) *ASError {
-	return &ASError{uuid, errMsg, msg}
+func NewASError(uuid UUID, msg string, sysError error) *ASError {
+	return &ASError{uuid, msg, sysError}
 }
 
 func (e *ASError) Error() *ASError {
@@ -18,12 +18,10 @@ func (e *ASError) Error() *ASError {
 
 func (e *ASError) ErrorMessage() string {
 	var formattedMsg string
-	if e.ErrMsg == "" {
+	if e.SysError == nil {
 		formattedMsg = e.Msg
-	} else if e.Msg == "" {
-		formattedMsg = e.ErrMsg
 	} else {
-		formattedMsg = fmt.Sprintf("%s \n %s", e.Msg, e.ErrMsg)
+		formattedMsg = fmt.Sprintf("%s \n %s", e.Msg, e.SysError.Error())
 	}
 	return fmt.Sprintf("%s: %s", e.UUID, formattedMsg)
 }
