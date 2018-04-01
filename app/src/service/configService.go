@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2"
 
 	"../config"
+	"../exception"
 	"../util"
 )
 
@@ -15,10 +16,14 @@ func GetConfigService(u *util.Utilities) *ConfigService {
 	return newConfigService(u)
 }
 
-func (configService ConfigService) GetDBConn() *mgo.Session {
+func (configService ConfigService) GetDBConn() (
+	*mgo.Session, *exception.ASError) {
 
-	dialInfo := configService.u.GetDBDialInfo()
-	return config.GetMongoSession(dialInfo)
+	dialInfo, asError := configService.u.GetDBDialInfo()
+	if asError != nil {
+		return nil, asError
+	}
+	return config.GetMongoSession(dialInfo), nil
 }
 
 func (configService ConfigService) ConnectEventDB(

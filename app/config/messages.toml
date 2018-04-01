@@ -3,6 +3,10 @@
 
     [messages.error]
     db_conn_err = "Failed to connect MongoDB database."
-
+    serialize_object_error = "Failed to serialize object."
+    unserialize_object_error = "Failed to unserialize object."
+    to_array_error = "Failed to convert an object to an array."
+    to_map_error = "Failed to convert an object to a map."
+    invalid_env_type = "There is no such running environment."
 
     [messages.warning]

@@ -25,23 +25,6 @@ func NewUtilities(v *viper.Viper) *Utilities {
 	return &Utilities{v}
 }
 
-func SerializeObject(i interface{}) []byte {
-
-	serrialized, err := json.Marshal(i)
-	if err != nil {
-		return nil // TODO: add error handling later
-	}
-	return serrialized
-}
-
-func UnserializeObject(data []byte, i interface{}) {
-
-	err := json.Unmarshal(data, i)
-	if err != nil {
-		// TODO: add error handling later
-	}
-}
-
 /*
 	Utility methods
 */
@@ -58,19 +41,24 @@ func (u Utilities) GetBooleanConfigValue(key string) bool {
 	return u.v.GetBool(key)
 }
 
-func (u Utilities) GetMapArrConfigValue(key string) []map[string]interface{} {
+func (u Utilities) GetMapArrConfigValue(key string) (
+	[]map[string]interface{}, *exception.ASError) {
 
-	return toArrayMap(u.v.Get(key))
+	return toArrayMap(u.v.Get(key), &u)
 }
 
 func (u Utilities) GetActiveEnv() int {
 	return u.GetIntConfigValue("environment.active")
 }
 
-func (u Utilities) GetActiveEnvHost() string {
-	prefix := u.getActiveEnvPrefix()
+func (u Utilities) GetActiveEnvHost() (string, *exception.ASError) {
+
+	prefix, asErr := u.getActiveEnvPrefix()
+	if asErr != nil {
+		return "", nil
+	}
 	hostKey := fmt.Sprintf("%s.host", prefix)
-	return u.GetStringConfigValue(hostKey)
+	return u.GetStringConfigValue(hostKey), nil
 }
 
 func (u Utilities) GetMessage(key string) string {
@@ -88,20 +76,26 @@ func (u Utilities) GetWarningMessage(key string) string {
 	return u.GetStringConfigValue(msgKey)
 }
 
-func (u Utilities) GetDBUrl() string {
+func (u Utilities) GetDBUrl() (string, *exception.ASError) {
 
-	prefix := u.getActiveEnvPrefix()
+	prefix, asErr := u.getActiveEnvPrefix()
+	if asErr != nil {
+		return "", nil
+	}
 	hostKey := fmt.Sprintf("%s.db.host", prefix)
 	host := u.GetStringConfigValue(hostKey)
 	port := u.GetIntConfigValue("db.port")
 	url := fmt.Sprintf("%s:%d", host, port)
 
-	return url
+	return url, nil
 }
 
-func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
+func (u Utilities) GetDBDialInfo() (*mgo.DialInfo, *exception.ASError) {
 
-	url := u.GetDBUrl()
+	url, asErr := u.GetDBUrl()
+	if asErr != nil {
+		return nil, asErr
+	}
 	timeout := u.GetIntConfigValue("db.timeout")
 	dbName := u.GetDBName()
 	poolLimit := u.GetIntConfigValue("db.pool_limit")
@@ -111,7 +105,7 @@ func (u Utilities) GetDBDialInfo() *mgo.DialInfo {
 		Timeout:   time.Duration(timeout) * time.Second,
 		Database:  dbName,
 		PoolLimit: poolLimit,
-	}
+	}, nil
 }
 
 func (u Utilities) GetDBName() string {
@@ -122,7 +116,13 @@ func (u Utilities) GetDBName() string {
 func (u Utilities) GetError(
 	uuid exception.UUID, errKey string, err error) *exception.ASError {
 
-	errMsg := u.GetErrorMessage(errKey)
+	var errMsg string
+	if errKey == "" {
+		errMsg = err.Error()
+	} else {
+		errMsg = u.GetErrorMessage(errKey)
+	}
+
 	asErr := exception.NewASError(uuid, errMsg, err)
 	log.Println(asErr.ErrorMessage())
 
@@ -139,50 +139,90 @@ func (u Utilities) GetWarning(
 	return asWarning
 }
 
+func (u Utilities) SerializeObject(i interface{}) ([]byte, *exception.ASError) {
+
+	serrialized, err := json.Marshal(i)
+	if err != nil {
+		asErr := u.GetError(
+			exception.AS00001, "serialize_object_error", err)
+		return nil, asErr
+	}
+	return serrialized, nil
+}
+
+func (u Utilities) UnserializeObject(
+	data []byte, i interface{}) *exception.ASError {
+
+	err := json.Unmarshal(data, i)
+	if err != nil {
+		asErr := u.GetError(
+			exception.AS00002, "unserialize_object_error", err)
+		return asErr
+	}
+
+	return nil
+}
+
 /*
 	Private methods
 */
 
-func (u Utilities) getActiveEnvPrefix() string {
+func (u Utilities) getActiveEnvPrefix() (string, *exception.ASError) {
 	env := u.GetActiveEnv()
-	envMap := u.GetMapArrConfigValue("env-map")
+	envMap, asErr := u.GetMapArrConfigValue("env-map")
+	if asErr != nil {
+		return "", asErr
+	}
 
 	switch env {
 	case toIntFromInt64Inteface(envMap[0]["index"]):
-		return envMap[0]["type"].(string)
+		return envMap[0]["type"].(string), nil
 	case toIntFromInt64Inteface(envMap[1]["index"]):
-		return envMap[1]["type"].(string)
+		return envMap[1]["type"].(string), nil
 	default:
-		return ""
+		asErr1 := u.GetError(exception.AS00006, "invalid_env_type", nil)
+		return "", asErr1
 	}
 }
 
-func toArray(i interface{}) []interface{} {
+func toArray(i interface{}, u *Utilities) (
+	[]interface{}, *exception.ASError) {
+
 	arr, ok := i.([]interface{})
 	if !ok {
-		// TODO: add error handling later
+		asErr := u.GetError(exception.AS00004, "to_array_error", nil)
+		return nil, asErr
 	}
-	return arr
+	return arr, nil
 }
 
-func toMap(i interface{}) map[string]interface{} {
+func toMap(i interface{}, u *Utilities) (
+	map[string]interface{}, *exception.ASError) {
+
 	m, ok := i.(map[string]interface{})
 	if !ok {
-		// TODO: add error handling later
+		asErr := u.GetError(exception.AS00005, "to_map_error", nil)
+		return nil, asErr
 	}
-	return m
+	return m, nil
 }
 
-func toArrayMap(i interface{}) []map[string]interface{} {
-	arr := toArray(i)
+func toArrayMap(i interface{}, u *Utilities) ([]map[string]interface{}, *exception.ASError) {
+	arr, asErr := toArray(i, u)
+	if asErr != nil {
+		return nil, asErr
+	}
 
 	mapArr := make([]map[string]interface{}, len(arr))
 
 	for i := 0; i < len(arr); i++ {
-		mapArr[i] = toMap(arr[i])
+		mapArr[i], asErr = toMap(arr[i], u)
+		if asErr != nil {
+			return nil, asErr
+		}
 	}
 
-	return mapArr
+	return mapArr, nil
 }
 
 func toIntFromInt64Inteface(i interface{}) int {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"../exception"
 	"../util"
 )
 
@@ -18,25 +19,30 @@ func GetService(u *util.Utilities) *Service {
 }
 
 func (service Service) ProcessReqBody(
-	c *gin.Context, i interface{}) <-chan error {
+	c *gin.Context, i interface{}) <-chan *exception.ASError {
 
-	ch := make(chan error)
+	ch := make(chan *exception.ASError)
 
 	go func() {
 
 		body, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
-			ch <- err
+			asErr := service.u.GetError(exception.AS00003, "", err)
+			ch <- asErr
 		}
 
 		log.Println(string(body))
-		util.UnserializeObject(body, &i)
-		ch <- nil
+
+		asErr1 := service.u.UnserializeObject(body, &i)
+		if asErr1 != nil {
+			ch <- asErr1
+		} else {
+			ch <- nil
+		}
 
 	}()
 
 	return ch
-
 }
 
 /*
