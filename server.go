@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"./app/src/config"
 	"./app/src/data"
+	"./app/src/exception"
 	"./app/src/util"
 )
 
@@ -15,7 +18,9 @@ func testing(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		// TODO
+		err1 := exception.NewASError(exception.AS00001, err.Error(), "")
+		c.JSON(http.StatusInternalServerError, err1)
+		log.Panicln(err1)
 	}
 
 	fmt.Println(string(body))
@@ -24,7 +29,7 @@ func testing(c *gin.Context) {
 
 	util.UnserializeObject(body, &acctTxnEvent)
 
-	c.JSON(200, acctTxnEvent)
+	c.JSON(http.StatusOK, acctTxnEvent)
 
 }
 
@@ -51,6 +56,13 @@ func setUp() {
 	router.Run(portStr)
 }
 
+func test() {
+	err := exception.NewASError(exception.AS00001, "", "Hello World")
+	fmt.Println(err)
+}
+
 func main() {
 	setUp()
+
+	// test()
 }

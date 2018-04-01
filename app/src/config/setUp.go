@@ -25,6 +25,7 @@ func ReadInConfig() *viper.Viper {
 	readInConfigHelper(v, "app.test")
 	readInConfigHelper(v, "messages")
 	readInConfigHelper(v, "maps")
+	readInConfigHelper(v, "errorCode")
 
 	return v
 }
