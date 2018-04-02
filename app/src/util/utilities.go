@@ -168,6 +168,12 @@ func (u Utilities) UnserializeObject(
 	return nil
 }
 
+func (u Utilities) GetLogFilePath(typ string) string {
+
+	key := fmt.Sprintf("log_file_path.%s", typ)
+	return u.GetStringConfigValue(key)
+}
+
 /*
 	Private methods
 */

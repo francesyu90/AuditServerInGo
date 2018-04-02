@@ -18,11 +18,12 @@ type (
 		service *services.Service
 		session *mgo.Session
 		u       *util.Utilities
+		loggers *util.Logger
 	}
 )
 
-func GetController(u *util.Utilities) *Controller {
-	return newController(u)
+func GetController(u *util.Utilities, loggers *util.Logger) *Controller {
+	return newController(u, loggers)
 }
 
 func (controller Controller) Testing(c *gin.Context) {
@@ -41,6 +42,8 @@ func (controller Controller) Testing(c *gin.Context) {
 		controller.handleNoEventsAvail("no_events_found_warning", c)
 		return
 	}
+
+	controller.loggers.INFO.Println("events: ", events)
 
 	c.JSON(
 		http.StatusOK,
@@ -66,6 +69,8 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 		return
 	}
 
+	controller.loggers.INFO.Println("Quote Server Event: ", qsEvent)
+
 	event := &data.Event{
 		EventType: data.QuSEvent,
 		QsEvent:   &qsEvent,
@@ -89,13 +94,13 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 	Private methods
 */
 
-func newController(u *util.Utilities) *Controller {
+func newController(u *util.Utilities, loggers *util.Logger) *Controller {
 
 	configService := services.GetConfigService(u)
 	session, _ := configService.GetDBConn()
 	service := services.GetService(u, session)
 
-	return &Controller{service, session, u}
+	return &Controller{service, session, u, loggers}
 }
 
 func (controller Controller) checkAndHandleDBError(
@@ -121,10 +126,23 @@ func (controller Controller) checkAndHandleDBError(
 func (controller Controller) handleError(
 	c *gin.Context, asErr *exception.ASError) {
 
+	controller.loggers.ERROR.Println(asErr.ErrorMessage())
+
 	c.JSON(http.StatusInternalServerError,
 		gin.H{
 			"status": http.StatusInternalServerError,
 			"error":  asErr.ErrorMessage(),
+		})
+}
+
+func (controller Controller) handleWarning(
+	c *gin.Context, asWarning *exception.ASWarning) {
+
+	controller.loggers.WARNING.Println(asWarning.WarningMessage())
+	c.JSON(http.StatusNotFound,
+		gin.H{
+			"status":  http.StatusNotFound,
+			"warning": asWarning.WarningMessage(),
 		})
 }
 
@@ -141,10 +159,5 @@ func (controller Controller) handleNoEventsAvail(
 	warningKey string, c *gin.Context) {
 
 	asWarning := controller.u.GetWarning(exception.AS00014, warningKey)
-	c.JSON(http.StatusNotFound,
-		gin.H{
-			"status":  http.StatusNotFound,
-			"warning": asWarning.WarningMessage(),
-		})
-
+	controller.handleWarning(c, asWarning)
 }

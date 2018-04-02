@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,12 +11,18 @@ import (
 	"./app/src/util"
 )
 
-func getMainEngine(u *util.Utilities) (*gin.Engine, string) {
+func getMainEngine(u *util.Utilities, loggers *util.Logger) (
+	*gin.Engine, string) {
+
 	router := gin.Default()
-	controller := controller.GetController(u)
+
+	controller := controller.GetController(u, loggers)
+
 	api := router.Group(u.GetStringConfigValue("uri.api"))
 	{
-		api.GET(u.GetStringConfigValue("test.uri.testing"), controller.Testing)
+		api.GET(
+			u.GetStringConfigValue("test.uri.testing"),
+			controller.Testing)
 		api.POST(
 			u.GetStringConfigValue("uri.quote_server"),
 			controller.HandleQSEvent)
@@ -35,7 +42,11 @@ func setUpHelper() *util.Utilities {
 func setUp() {
 
 	u := setUpHelper()
-	router, portStr := getMainEngine(u)
+	loggers, asErr := util.InitLoggers(u)
+	if asErr != nil {
+		log.Fatalln(asErr)
+	}
+	router, portStr := getMainEngine(u, loggers)
 	router.Run(portStr)
 }
 
