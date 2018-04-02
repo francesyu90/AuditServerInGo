@@ -61,6 +61,57 @@ func (controller Controller) Testing(c *gin.Context) {
 
 }
 
+func (controller Controller) LogAll(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	asErr, asWarning := controller.service.LogAll()
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	} else if asWarning != nil {
+		controller.handleWarning(c, asWarning)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+		})
+
+}
+
+func (controller Controller) LogByUser(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	userID := c.Param("userName")
+	asErr, asWarning := controller.service.LogByUser(userID)
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	} else if asWarning != nil {
+		controller.handleWarning(c, asWarning)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+		})
+
+}
+
 func (controller Controller) HandleATEvent(c *gin.Context) {
 
 	ch := controller.checkAndHandleDBError(c)
@@ -272,11 +323,4 @@ func (controller Controller) checkDBConn() *exception.ASError {
 		return asError
 	}
 	return nil
-}
-
-func (controller Controller) handleNoEventsAvail(
-	warningKey string, c *gin.Context) {
-
-	asWarning := controller.u.GetWarning(exception.AS00014, warningKey)
-	controller.handleWarning(c, asWarning)
 }

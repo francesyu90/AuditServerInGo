@@ -78,11 +78,14 @@ func (service Service) GetAllEventsByUser(
 	return service.repo.FindByUserID(userID)
 }
 
-func (service Service) LogAll() *exception.ASError {
+func (service Service) LogAll() (*exception.ASError, *exception.ASWarning) {
 
 	events, asErr := service.GetAllEvents()
 	if asErr != nil {
-		return asErr
+		return asErr, nil
+	} else if events == nil {
+		asWarning := service.u.GetWarning(exception.AS00014, "no_events_found_warning")
+		return nil, asWarning
 	}
 
 	for _, event := range events {
@@ -90,7 +93,29 @@ func (service Service) LogAll() *exception.ASError {
 		service.loggers.XML.Println(xmlString)
 	}
 
-	return nil
+	return nil, nil
+}
+
+func (service Service) LogByUser(userID string) (
+	*exception.ASError, *exception.ASWarning) {
+
+	events, asErr := service.GetAllEventsByUser(userID)
+	if asErr != nil {
+		return asErr, nil
+	} else if events == nil {
+		asWarning :=
+			service.u.GetWarning(
+				exception.AS00016,
+				"no_events_found_by_user_warning")
+		return nil, asWarning
+	}
+
+	for _, event := range events {
+		xmlString := service.getXMLEventString(event)
+		service.loggers.XML.Println(xmlString)
+	}
+
+	return nil, nil
 }
 
 /*

@@ -38,12 +38,12 @@ func getMainEngine(u *util.Utilities, loggers *util.Logger) (
 		api.POST(
 			u.GetStringConfigValue("uri.account_transaction"),
 			controller.HandleATEvent)
-		// api.GET(
-		// 	u.GetStringConfigValue("uri.log_all"),
-		// 	controller.Testing)
-		// api.GET(
-		// 	u.GetStringConfigValue("uri.log"),
-		// 	controller.Testing)
+		api.GET(
+			u.GetStringConfigValue("uri.log_all"),
+			controller.LogAll)
+		api.GET(
+			u.GetStringConfigValue("uri.log"),
+			controller.LogByUser)
 
 	}
 
