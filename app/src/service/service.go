@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/xml"
 	"io/ioutil"
 
 	"gopkg.in/mgo.v2"
@@ -74,8 +75,22 @@ func (service Service) GetAllEventsByUser(
 	userID string) ([]*data.Event, *exception.ASError) {
 
 	service.loggers.INFO.Println("Get all events with user id: ", userID)
-
 	return service.repo.FindByUserID(userID)
+}
+
+func (service Service) LogAll() *exception.ASError {
+
+	events, asErr := service.GetAllEvents()
+	if asErr != nil {
+		return asErr
+	}
+
+	for _, event := range events {
+		xmlString := service.getXMLEventString(event)
+		service.loggers.XML.Println(xmlString)
+	}
+
+	return nil
 }
 
 /*
@@ -89,4 +104,86 @@ func newService(
 
 	repo := repository.GetRepository(session, u, loggers)
 	return &Service{u, session, repo, loggers}
+}
+
+// func getEvent(event *data.Event) interface{} {
+
+// 	switch event.EventType {
+// 	case data.AcTxnEvent:
+// 		return event.AcctTxnEvent
+// 	case data.SyEvent:
+// 		return event.SysEvent
+// 	case data.QuSEvent:
+// 		return event.QsEvent
+// 	case data.ErEvent:
+// 		return event.ErrEvent
+// 	default:
+// 		return nil
+// 	}
+// }
+
+func getEvent(event *data.Event) interface{} {
+
+	switch event.EventType {
+	case data.AcTxnEvent:
+		atEvent := event.AcctTxnEvent
+		return data.GetAccountTransaction(
+			atEvent.Server,
+			atEvent.TransactionNum,
+			atEvent.Action,
+			atEvent.UserId,
+			atEvent.Funds,
+			atEvent.Timestamp)
+	case data.SyEvent:
+		sysEvent := event.SysEvent
+		return data.GetSystemEvent(
+			sysEvent.Server,
+			sysEvent.TransactionNum,
+			sysEvent.Command,
+			sysEvent.UserId,
+			sysEvent.StockSymbol,
+			sysEvent.Funds,
+			sysEvent.Timestamp)
+	case data.QuSEvent:
+		qusEvent := event.QsEvent
+		return data.GetQuoteServer(
+			qusEvent.Server,
+			qusEvent.TransactionNum,
+			qusEvent.QuoteServerEventTime,
+			qusEvent.Command,
+			qusEvent.UserId,
+			qusEvent.StockSymbol,
+			qusEvent.Price,
+			qusEvent.Cryptokey,
+			qusEvent.Timestamp)
+	case data.ErEvent:
+		errEvent := event.ErrEvent
+		return data.GetErrorEvent(
+			errEvent.Server,
+			errEvent.TransactionNum,
+			errEvent.Command,
+			errEvent.UserId,
+			errEvent.StockSymbol,
+			errEvent.Funds,
+			errEvent.ErrorMessage,
+			errEvent.Timestamp)
+	default:
+		return nil
+	}
+}
+
+func getXmlEventStringHelper(i interface{}) string {
+
+	var xmlString string
+	if xmlstring, err := xml.MarshalIndent(i, "", "    "); err == nil {
+		xmlString = string(xmlstring)
+		return xmlString
+	}
+	return xmlString
+}
+
+func (service Service) getXMLEventString(event *data.Event) string {
+
+	targetEvent := getEvent(event)
+	return getXmlEventStringHelper(targetEvent)
 }

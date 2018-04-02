@@ -34,22 +34,30 @@ func (controller Controller) Testing(c *gin.Context) {
 		return
 	}
 
-	events, asErr := controller.service.GetAllEvents()
-	if asErr != nil {
-		controller.handleError(c, asErr)
-		return
-	} else if events == nil {
-		controller.handleNoEventsAvail("no_events_found_warning", c)
-		return
-	}
+	// events, asErr := controller.service.GetAllEvents()
+	// if asErr != nil {
+	// 	controller.handleError(c, asErr)
+	// 	return
+	// } else if events == nil {
+	// 	controller.handleNoEventsAvail("no_events_found_warning", c)
+	// 	return
+	// }
 
-	controller.loggers.INFO.Println("events: ", events)
+	// controller.loggers.INFO.Println("events: ", events)
+
+	// c.JSON(
+	// 	http.StatusOK,
+	// 	gin.H{
+	// 		"status": http.StatusOK,
+	// 		"data":   events})
+
+	controller.service.LogAll()
 
 	c.JSON(
 		http.StatusOK,
 		gin.H{
 			"status": http.StatusOK,
-			"data":   events})
+		})
 
 }
 

@@ -1,1 +1,21 @@
 <?xml version="1.0"?>
+<quoteServer>
+    <timestamp>0</timestamp>
+    <server></server>
+    <transactionNum>234</transactionNum>
+    <quoteServerTime>0</quoteServerTime>
+    <username>test123</username>
+    <stockSymbol>abc</stockSymbol>
+    <price></price>
+    <cryptokey>hello</cryptokey>
+</quoteServer>
+<quoteServer>
+    <timestamp>0</timestamp>
+    <server></server>
+    <transactionNum>234</transactionNum>
+    <quoteServerTime>0</quoteServerTime>
+    <username>test123</username>
+    <stockSymbol>abc</stockSymbol>
+    <price></price>
+    <cryptokey>hello</cryptokey>
+</quoteServer>
