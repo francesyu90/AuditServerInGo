@@ -106,22 +106,6 @@ func newService(
 	return &Service{u, session, repo, loggers}
 }
 
-// func getEvent(event *data.Event) interface{} {
-
-// 	switch event.EventType {
-// 	case data.AcTxnEvent:
-// 		return event.AcctTxnEvent
-// 	case data.SyEvent:
-// 		return event.SysEvent
-// 	case data.QuSEvent:
-// 		return event.QsEvent
-// 	case data.ErEvent:
-// 		return event.ErrEvent
-// 	default:
-// 		return nil
-// 	}
-// }
-
 func getEvent(event *data.Event) interface{} {
 
 	switch event.EventType {

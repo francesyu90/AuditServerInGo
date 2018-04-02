@@ -61,6 +61,80 @@ func (controller Controller) Testing(c *gin.Context) {
 
 }
 
+func (controller Controller) HandleATEvent(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	var atEvent data.AccountTransactionEvent
+	ch1 := controller.service.ProcessReqBody(c, &atEvent)
+	asErr := <-ch1
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	}
+
+	controller.loggers.INFO.Println("Account Transaction Event: ", atEvent)
+
+	event := &data.Event{
+		EventType:    data.AcTxnEvent,
+		AcctTxnEvent: &atEvent,
+	}
+
+	asErr1 := controller.service.SaveEvent(event)
+	if asErr1 != nil {
+		controller.handleError(c, asErr1)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   atEvent})
+
+}
+
+func (controller Controller) HandleSEvent(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	var sEvent data.SystemEvent
+	ch1 := controller.service.ProcessReqBody(c, &sEvent)
+	asErr := <-ch1
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	}
+
+	controller.loggers.INFO.Println("System Event: ", sEvent)
+
+	event := &data.Event{
+		EventType: data.SyEvent,
+		SysEvent:  &sEvent,
+	}
+
+	asErr1 := controller.service.SaveEvent(event)
+	if asErr1 != nil {
+		controller.handleError(c, asErr1)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   sEvent})
+
+}
+
 func (controller Controller) HandleQSEvent(c *gin.Context) {
 
 	ch := controller.checkAndHandleDBError(c)
@@ -95,6 +169,43 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 		gin.H{
 			"status": http.StatusOK,
 			"data":   qsEvent})
+
+}
+
+func (controller Controller) HandleEEvent(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	var eEvent data.ErrorEvent
+	ch1 := controller.service.ProcessReqBody(c, &eEvent)
+	asErr := <-ch1
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	}
+
+	controller.loggers.INFO.Println("Error Event: ", eEvent)
+
+	event := &data.Event{
+		EventType: data.ErEvent,
+		ErrEvent:  &eEvent,
+	}
+
+	asErr1 := controller.service.SaveEvent(event)
+	if asErr1 != nil {
+		controller.handleError(c, asErr1)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   eEvent})
 
 }
 

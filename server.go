@@ -24,8 +24,27 @@ func getMainEngine(u *util.Utilities, loggers *util.Logger) (
 			u.GetStringConfigValue("test.uri.testing"),
 			controller.Testing)
 		api.POST(
+			u.GetStringConfigValue("uri.system_event"),
+			controller.HandleSEvent)
+		// api.POST(
+		// 	u.GetStringConfigValue("uri.user_command"),
+		// 	controller.HandleQSEvent)
+		api.POST(
 			u.GetStringConfigValue("uri.quote_server"),
 			controller.HandleQSEvent)
+		api.POST(
+			u.GetStringConfigValue("uri.error_event"),
+			controller.HandleEEvent)
+		api.POST(
+			u.GetStringConfigValue("uri.account_transaction"),
+			controller.HandleATEvent)
+		// api.GET(
+		// 	u.GetStringConfigValue("uri.log_all"),
+		// 	controller.Testing)
+		// api.GET(
+		// 	u.GetStringConfigValue("uri.log"),
+		// 	controller.Testing)
+
 	}
 
 	portStr := fmt.Sprintf(":%d", u.GetIntConfigValue("environment.port"))
