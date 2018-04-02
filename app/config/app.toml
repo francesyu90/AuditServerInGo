@@ -15,11 +15,11 @@ timeout = 10
 
 [uri]
 api = "/api"
-system-event = "/systemevent"
-user-command = "/usercommand"
-quote-server = "/quoteserver"
-error-event = "/errorevent"
-account-transaction = "/accounttransaction"
-log-all = "/log"
+system_event = "/systemevent"
+user_command = "/usercommand"
+quote_server = "/quoteserver"
+error_event = "/errorevent"
+account_transaction = "/accounttransaction"
+log_all = "/log"
 log = "/log/:userName"
-clear-db = "/clear-db"
+clear_db = "/clear-db"

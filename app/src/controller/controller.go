@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"../data"
 	"../exception"
 	services "../service"
 	"../util"
@@ -27,8 +28,6 @@ func GetController(u *util.Utilities) *Controller {
 
 func (controller Controller) Testing(c *gin.Context) {
 
-	controller.session = nil
-
 	ch := controller.checkAndHandleDBError(c)
 	hasErr := <-ch
 	if hasErr {
@@ -43,6 +42,26 @@ func (controller Controller) Testing(c *gin.Context) {
 
 func (controller Controller) HandleQSEvent(c *gin.Context) {
 
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	var qsEvent data.QuoteServerEvent
+	ch1 := controller.service.ProcessReqBody(c, &qsEvent)
+	asErr := <-ch1
+	if asErr != nil {
+		controller.handleError(c, asErr)
+	} else {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"status": http.StatusOK,
+				"data":   qsEvent})
+
+	}
+
 }
 
 /*
@@ -51,9 +70,9 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 
 func newController(u *util.Utilities) *Controller {
 
-	service := services.GetService(u)
 	configService := services.GetConfigService(u)
 	session, _ := configService.GetDBConn()
+	service := services.GetService(u, session)
 
 	return &Controller{service, session, u}
 }

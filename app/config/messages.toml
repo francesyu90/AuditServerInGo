@@ -8,5 +8,12 @@
     to_array_error = "Failed to convert an object to an array."
     to_map_error = "Failed to convert an object to a map."
     invalid_env_type = "There is no such running environment."
+    db_insert_error = "Failed to insert an event into db."
+    db_update_by_id_error = "Failed to update an event in the db."
+    db_delete_error = "Failed to delete an event in the db."
+    db_find_all_error = "Failed to find all events in the db."
+    db_find_by_user_id_error = "Failed to find any events by the given user."
+    no_user_id_available_error = "There is no user id available for an event."
 
     [messages.warning]
+  

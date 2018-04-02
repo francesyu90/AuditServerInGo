@@ -17,6 +17,9 @@ func getMainEngine(u *util.Utilities) (*gin.Engine, string) {
 	api := router.Group(u.GetStringConfigValue("uri.api"))
 	{
 		api.GET(u.GetStringConfigValue("test.uri.testing"), controller.Testing)
+		api.POST(
+			u.GetStringConfigValue("uri.quote_server"),
+			controller.HandleQSEvent)
 	}
 
 	portStr := fmt.Sprintf(":%d", u.GetIntConfigValue("environment.port"))

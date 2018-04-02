@@ -113,6 +113,11 @@ func (u Utilities) GetDBName() string {
 	return u.GetStringConfigValue("db.db_name")
 }
 
+func (u Utilities) GetDBDocName() string {
+
+	return u.GetStringConfigValue("db.doc_name")
+}
+
 func (u Utilities) GetError(
 	uuid exception.UUID, errKey string, err error) *exception.ASError {
 

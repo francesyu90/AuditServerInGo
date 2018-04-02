@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"gopkg.in/mgo.v2"
+
 	"github.com/gin-gonic/gin"
 
 	"../exception"
@@ -11,11 +13,12 @@ import (
 )
 
 type Service struct {
-	u *util.Utilities
+	u       *util.Utilities
+	session *mgo.Session
 }
 
-func GetService(u *util.Utilities) *Service {
-	return newService(u)
+func GetService(u *util.Utilities, session *mgo.Session) *Service {
+	return newService(u, session)
 }
 
 func (service Service) ProcessReqBody(
@@ -49,6 +52,6 @@ func (service Service) ProcessReqBody(
 	Private methods
 */
 
-func newService(u *util.Utilities) *Service {
-	return &Service{u}
+func newService(u *util.Utilities, session *mgo.Session) *Service {
+	return &Service{u, session}
 }
