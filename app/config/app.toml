@@ -1,6 +1,6 @@
 
 [environment]
-active = 1
+active = 0
 #   0: development
 #   1: docker
 port = 8082
