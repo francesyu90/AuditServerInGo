@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 
 	"gopkg.in/mgo.v2"
@@ -34,9 +33,17 @@ func (controller Controller) Testing(c *gin.Context) {
 		return
 	}
 
-	log.Println("Hello World")
+	events, asErr := controller.service.GetAllEvents()
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK})
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   events})
 
 }
 

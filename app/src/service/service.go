@@ -56,6 +56,10 @@ func (service Service) SaveEvent(event *data.Event) *exception.ASError {
 	return service.repo.Insert(event)
 }
 
+func (service Service) GetAllEvents() ([]*data.Event, *exception.ASError) {
+	return service.repo.FindAll()
+}
+
 /*
 	Private methods
 */
