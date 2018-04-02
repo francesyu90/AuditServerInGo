@@ -10,11 +10,10 @@ import (
 )
 
 type Repository struct {
-	session  *mgo.Session
-	database *mgo.Database
-	dbName   string
-	u        *util.Utilities
-	docName  string
+	session *mgo.Session
+	dbName  string
+	u       *util.Utilities
+	docName string
 }
 
 func GetRepository(
@@ -169,13 +168,9 @@ func (repo Repository) FindByUserID(userID string) (
 */
 func newRepository(session *mgo.Session, u *util.Utilities) *Repository {
 
-	newSession := session.Clone()
-	defer newSession.Close()
-
 	dbName := u.GetDBName()
-	db := newSession.DB(dbName)
 	docName := u.GetDBDocName()
-	return &Repository{session, db, dbName, u, docName}
+	return &Repository{session, dbName, u, docName}
 }
 
 func (repo Repository) getUserID(event *data.Event) (string, *exception.ASError) {
