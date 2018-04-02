@@ -1,1 +1,9 @@
-INFO: 2018/04/02 10:34:09 controller.go:72: Quote Server Event:  {0  234 0  test123 abc  hello}
+INFO: 2018/04/02 10:49:02 configService.go:29: Dial Info:  &{[localhost:27017] false 10s false eventstore        100 <nil> <nil>}
+INFO: 2018/04/02 10:49:30 service.go:44: Request Body:  {
+	"userid": "test123",
+	"cryptokey": "hello",
+	"transactionNum": 234,
+	"stocksymbol": "abc"
+}
+INFO: 2018/04/02 10:49:30 controller.go:72: Quote Server Event:  {0  234 0  test123 abc  hello}
+INFO: 2018/04/02 10:49:40 controller.go:46: events:  [0xc0421ac190 0xc0421ac1e0]

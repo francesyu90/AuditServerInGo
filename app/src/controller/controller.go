@@ -96,9 +96,9 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 
 func newController(u *util.Utilities, loggers *util.Logger) *Controller {
 
-	configService := services.GetConfigService(u)
+	configService := services.GetConfigService(u, loggers)
 	session, _ := configService.GetDBConn()
-	service := services.GetService(u, session)
+	service := services.GetService(u, session, loggers)
 
 	return &Controller{service, session, u, loggers}
 }

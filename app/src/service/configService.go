@@ -9,11 +9,13 @@ import (
 )
 
 type ConfigService struct {
-	u *util.Utilities
+	u       *util.Utilities
+	loggers *util.Logger
 }
 
-func GetConfigService(u *util.Utilities) *ConfigService {
-	return newConfigService(u)
+func GetConfigService(
+	u *util.Utilities, loggers *util.Logger) *ConfigService {
+	return newConfigService(u, loggers)
 }
 
 func (configService ConfigService) GetDBConn() (
@@ -21,8 +23,10 @@ func (configService ConfigService) GetDBConn() (
 
 	dialInfo, asError := configService.u.GetDBDialInfo()
 	if asError != nil {
+		configService.loggers.ERROR.Println(asError.ErrorMessage())
 		return nil, asError
 	}
+	configService.loggers.INFO.Println("Dial Info: ", dialInfo)
 	return config.GetMongoSession(dialInfo), nil
 }
 
@@ -30,7 +34,8 @@ func (configService ConfigService) GetDBConn() (
 	Private methods
 */
 
-func newConfigService(u *util.Utilities) *ConfigService {
+func newConfigService(
+	u *util.Utilities, loggers *util.Logger) *ConfigService {
 
-	return &ConfigService{u}
+	return &ConfigService{u, loggers}
 }

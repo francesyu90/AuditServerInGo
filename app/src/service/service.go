@@ -2,7 +2,6 @@ package service
 
 import (
 	"io/ioutil"
-	"log"
 
 	"gopkg.in/mgo.v2"
 
@@ -18,10 +17,15 @@ type Service struct {
 	u       *util.Utilities
 	session *mgo.Session
 	repo    *repository.Repository
+	loggers *util.Logger
 }
 
-func GetService(u *util.Utilities, session *mgo.Session) *Service {
-	return newService(u, session)
+func GetService(
+	u *util.Utilities,
+	session *mgo.Session,
+	loggers *util.Logger) *Service {
+
+	return newService(u, session, loggers)
 }
 
 func (service Service) ProcessReqBody(
@@ -37,7 +41,7 @@ func (service Service) ProcessReqBody(
 			ch <- asErr
 		}
 
-		log.Println(string(body))
+		service.loggers.INFO.Println("Request Body: ", string(body))
 
 		asErr1 := service.u.UnserializeObject(body, &i)
 		if asErr1 != nil {
@@ -73,7 +77,11 @@ func (service Service) GetAllEventsByUser(
 	Private methods
 */
 
-func newService(u *util.Utilities, session *mgo.Session) *Service {
+func newService(
+	u *util.Utilities,
+	session *mgo.Session,
+	loggers *util.Logger) *Service {
+
 	repo := repository.GetRepository(session, u)
-	return &Service{u, session, repo}
+	return &Service{u, session, repo, loggers}
 }
