@@ -5,6 +5,12 @@ active = 0
 #   1: docker
 port = 8082
 
+[log_file_path]
+trace = "trace.log"
+info = "info.log"
+warning = "warning.log"
+error = "error.log"
+xml = "logFile.xml"
 
 [db]
 port = "27017"

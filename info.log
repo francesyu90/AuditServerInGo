@@ -1,0 +1,3 @@
+INFO: 2018/04/02 13:32:22 configService.go:29: Dial Info:  &{[localhost:27017] false 10s false eventstore        100 <nil> <nil>}
+INFO: 2018/04/02 13:32:25 service.go:69: Get all events
+INFO: 2018/04/02 13:32:25 repository.go:146: Events:  [0xc042097130 0xc0420971d0]

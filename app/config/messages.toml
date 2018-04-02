@@ -14,6 +14,7 @@
     db_find_all_error = "Failed to find all events in the db."
     db_find_by_user_id_error = "Failed to find any events by the given user."
     no_user_id_available_error = "There is no user id available for an event."
+    create_log_file_error = "Failed to create log file."
 
     [messages.warning]
     no_events_found_warning = "There is no available event in db"
