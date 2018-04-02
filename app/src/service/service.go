@@ -38,6 +38,7 @@ func (service Service) ProcessReqBody(
 		body, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			asErr := service.u.GetError(exception.AS00003, "", err)
+			service.loggers.ERROR.Println(asErr.ErrorMessage())
 			ch <- asErr
 		}
 
@@ -64,11 +65,15 @@ func (service Service) SaveEvent(
 func (service Service) GetAllEvents() (
 	[]*data.Event, *exception.ASError) {
 
+	service.loggers.INFO.Println("Get all events")
+
 	return service.repo.FindAll()
 }
 
 func (service Service) GetAllEventsByUser(
 	userID string) ([]*data.Event, *exception.ASError) {
+
+	service.loggers.INFO.Println("Get all events with user id: ", userID)
 
 	return service.repo.FindByUserID(userID)
 }
@@ -82,6 +87,6 @@ func newService(
 	session *mgo.Session,
 	loggers *util.Logger) *Service {
 
-	repo := repository.GetRepository(session, u)
+	repo := repository.GetRepository(session, u, loggers)
 	return &Service{u, session, repo, loggers}
 }

@@ -14,12 +14,15 @@ type Repository struct {
 	dbName  string
 	u       *util.Utilities
 	docName string
+	loggers *util.Logger
 }
 
 func GetRepository(
-	session *mgo.Session, u *util.Utilities) *Repository {
+	session *mgo.Session,
+	u *util.Utilities,
+	loggers *util.Logger) *Repository {
 
-	return newRepository(session, u)
+	return newRepository(session, u, loggers)
 }
 
 func (repo Repository) Insert(event *data.Event) *exception.ASError {
@@ -30,6 +33,8 @@ func (repo Repository) Insert(event *data.Event) *exception.ASError {
 	}
 	event.UserID = userID
 	event.ID = bson.NewObjectId()
+
+	repo.loggers.INFO.Println("Event to be inserted: ", event)
 
 	c := make(chan error)
 
@@ -49,12 +54,15 @@ func (repo Repository) Insert(event *data.Event) *exception.ASError {
 	if err != nil {
 		asErr := repo.u.GetError(
 			exception.AS00008, "db_insert_error", err)
+		repo.loggers.ERROR.Println(asErr.ErrorMessage())
 		return asErr
 	}
 	return nil
 }
 
 func (repo Repository) UpdateById(event *data.Event) *exception.ASError {
+
+	repo.loggers.INFO.Println("Event to be updated: ", event)
 
 	c := make(chan error)
 
@@ -74,12 +82,15 @@ func (repo Repository) UpdateById(event *data.Event) *exception.ASError {
 	if err != nil {
 		asErr := repo.u.GetError(
 			exception.AS00009, "db_update_by_id_error", err)
+		repo.loggers.ERROR.Println(asErr.ErrorMessage())
 		return asErr
 	}
 	return nil
 }
 
 func (repo Repository) Delete(event *data.Event) *exception.ASError {
+
+	repo.loggers.INFO.Println("Event to be deleted: ", event)
 
 	c := make(chan error)
 
@@ -99,6 +110,7 @@ func (repo Repository) Delete(event *data.Event) *exception.ASError {
 	if err != nil {
 		asErr := repo.u.GetError(
 			exception.AS00010, "db_delete_error", err)
+		repo.loggers.ERROR.Println(asErr.ErrorMessage())
 		return asErr
 	}
 	return nil
@@ -127,8 +139,11 @@ func (repo Repository) FindAll() ([]*data.Event, *exception.ASError) {
 	if err != nil {
 		asErr := repo.u.GetError(
 			exception.AS00011, "db_find_all_error", err)
+		repo.loggers.ERROR.Println(asErr.ErrorMessage())
 		return nil, asErr
 	}
+
+	repo.loggers.INFO.Println("Events: ", events)
 	return events, nil
 }
 
@@ -157,8 +172,11 @@ func (repo Repository) FindByUserID(userID string) (
 	if err != nil {
 		asErr := repo.u.GetError(
 			exception.AS00012, "db_find_by_user_id_error", err)
+		repo.loggers.ERROR.Println(asErr.ErrorMessage())
 		return nil, asErr
 	}
+
+	repo.loggers.INFO.Println("Events by user: ", eventsByUser)
 	return eventsByUser, nil
 
 }
@@ -166,11 +184,14 @@ func (repo Repository) FindByUserID(userID string) (
 /*
 	Private methods
 */
-func newRepository(session *mgo.Session, u *util.Utilities) *Repository {
+func newRepository(
+	session *mgo.Session,
+	u *util.Utilities,
+	loggers *util.Logger) *Repository {
 
 	dbName := u.GetDBName()
 	docName := u.GetDBDocName()
-	return &Repository{session, dbName, u, docName}
+	return &Repository{session, dbName, u, docName, loggers}
 }
 
 func (repo Repository) getUserID(event *data.Event) (string, *exception.ASError) {
@@ -186,5 +207,6 @@ func (repo Repository) getUserID(event *data.Event) (string, *exception.ASError)
 	}
 	asError := repo.u.GetError(
 		exception.AS00013, "no_user_id_available_error", nil)
+	repo.loggers.ERROR.Println(asError.ErrorMessage())
 	return "", asError
 }
