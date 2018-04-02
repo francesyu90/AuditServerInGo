@@ -8,13 +8,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"../data"
 	"../exception"
+	"../repository"
 	"../util"
 )
 
 type Service struct {
 	u       *util.Utilities
 	session *mgo.Session
+	repo    *repository.Repository
 }
 
 func GetService(u *util.Utilities, session *mgo.Session) *Service {
@@ -48,10 +51,16 @@ func (service Service) ProcessReqBody(
 	return ch
 }
 
+func (service Service) SaveEvent(event *data.Event) *exception.ASError {
+
+	return service.repo.Insert(event)
+}
+
 /*
 	Private methods
 */
 
 func newService(u *util.Utilities, session *mgo.Session) *Service {
-	return &Service{u, session}
+	repo := repository.GetRepository(session, u)
+	return &Service{u, session, repo}
 }

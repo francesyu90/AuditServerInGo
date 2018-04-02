@@ -136,7 +136,6 @@ func (repo Repository) FindByUserID(userID string) (
 func newRepository(session *mgo.Session, u *util.Utilities) *Repository {
 
 	newSession := session.Clone()
-	defer newSession.Close()
 
 	dbName := u.GetDBName()
 	db := newSession.DB(dbName)

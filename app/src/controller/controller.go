@@ -53,14 +53,25 @@ func (controller Controller) HandleQSEvent(c *gin.Context) {
 	asErr := <-ch1
 	if asErr != nil {
 		controller.handleError(c, asErr)
-	} else {
-		c.JSON(
-			http.StatusOK,
-			gin.H{
-				"status": http.StatusOK,
-				"data":   qsEvent})
-
+		return
 	}
+
+	event := &data.Event{
+		EventType: data.QuSEvent,
+		QsEvent:   &qsEvent,
+	}
+
+	asErr1 := controller.service.SaveEvent(event)
+	if asErr1 != nil {
+		controller.handleError(c, asErr1)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   qsEvent})
 
 }
 
