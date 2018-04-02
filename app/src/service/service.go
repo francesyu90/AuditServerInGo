@@ -51,13 +51,22 @@ func (service Service) ProcessReqBody(
 	return ch
 }
 
-func (service Service) SaveEvent(event *data.Event) *exception.ASError {
+func (service Service) SaveEvent(
+	event *data.Event) *exception.ASError {
 
 	return service.repo.Insert(event)
 }
 
-func (service Service) GetAllEvents() ([]*data.Event, *exception.ASError) {
+func (service Service) GetAllEvents() (
+	[]*data.Event, *exception.ASError) {
+
 	return service.repo.FindAll()
+}
+
+func (service Service) GetAllEventsByUser(
+	userID string) ([]*data.Event, *exception.ASError) {
+
+	return service.repo.FindByUserID(userID)
 }
 
 /*
