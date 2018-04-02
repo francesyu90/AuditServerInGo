@@ -37,6 +37,9 @@ func (controller Controller) Testing(c *gin.Context) {
 	if asErr != nil {
 		controller.handleError(c, asErr)
 		return
+	} else if events == nil {
+		controller.handleNoEventsAvail("no_events_found_warning", c)
+		return
 	}
 
 	c.JSON(
@@ -132,4 +135,16 @@ func (controller Controller) checkDBConn() *exception.ASError {
 		return asError
 	}
 	return nil
+}
+
+func (controller Controller) handleNoEventsAvail(
+	warningKey string, c *gin.Context) {
+
+	asWarning := controller.u.GetWarning(exception.AS00014, warningKey)
+	c.JSON(http.StatusNotFound,
+		gin.H{
+			"status":  http.StatusNotFound,
+			"warning": asWarning.WarningMessage(),
+		})
+
 }

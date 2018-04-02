@@ -16,4 +16,6 @@
     no_user_id_available_error = "There is no user id available for an event."
 
     [messages.warning]
+    no_events_found_warning = "There is no available event in db"
+    no_events_found_by_user_warning = "There is no event available with the given user id"
   
