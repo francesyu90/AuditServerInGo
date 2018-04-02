@@ -12,11 +12,14 @@ import (
 type Repository struct {
 	session  *mgo.Session
 	database *mgo.Database
+	dbName   string
 	u        *util.Utilities
 	docName  string
 }
 
-func GetRepository(session *mgo.Session, u *util.Utilities) *Repository {
+func GetRepository(
+	session *mgo.Session, u *util.Utilities) *Repository {
+
 	return newRepository(session, u)
 }
 
@@ -32,7 +35,14 @@ func (repo Repository) Insert(event *data.Event) *exception.ASError {
 	c := make(chan error)
 
 	go func() {
-		err := repo.database.C(repo.docName).Insert(&event)
+
+		newSession := repo.session.Clone()
+		defer newSession.Close()
+
+		err := newSession.DB(repo.dbName).
+			C(repo.docName).
+			Insert(&event)
+
 		c <- err
 	}()
 
@@ -50,8 +60,14 @@ func (repo Repository) UpdateById(event *data.Event) *exception.ASError {
 	c := make(chan error)
 
 	go func() {
-		err :=
-			repo.database.C(repo.docName).UpdateId(event.ID, &event)
+
+		newSession := repo.session.Clone()
+		defer newSession.Close()
+
+		err := newSession.DB(repo.dbName).
+			C(repo.docName).
+			UpdateId(event.ID, &event)
+
 		c <- err
 	}()
 
@@ -69,7 +85,14 @@ func (repo Repository) Delete(event *data.Event) *exception.ASError {
 	c := make(chan error)
 
 	go func() {
-		err := repo.database.C(repo.docName).Remove(&event)
+
+		newSession := repo.session.Clone()
+		defer newSession.Close()
+
+		err := newSession.DB(repo.dbName).
+			C(repo.docName).
+			Remove(&event)
+
 		c <- err
 	}()
 
@@ -89,7 +112,15 @@ func (repo Repository) FindAll() ([]*data.Event, *exception.ASError) {
 	c := make(chan error)
 
 	go func() {
-		err := repo.database.C(repo.docName).Find(bson.M{}).All(&events)
+
+		newSession := repo.session.Clone()
+		defer newSession.Close()
+
+		err := newSession.DB(repo.dbName).
+			C(repo.docName).
+			Find(bson.M{}).
+			All(&events)
+
 		c <- err
 	}()
 
@@ -111,7 +142,10 @@ func (repo Repository) FindByUserID(userID string) (
 
 	go func() {
 
-		err := repo.database.
+		newSession := repo.session.Clone()
+		defer newSession.Close()
+
+		err := newSession.DB(repo.dbName).
 			C(repo.docName).
 			Find(bson.M{"user_id": userID}).
 			All(&eventsByUser)
@@ -136,11 +170,12 @@ func (repo Repository) FindByUserID(userID string) (
 func newRepository(session *mgo.Session, u *util.Utilities) *Repository {
 
 	newSession := session.Clone()
+	defer newSession.Close()
 
 	dbName := u.GetDBName()
 	db := newSession.DB(dbName)
 	docName := u.GetDBDocName()
-	return &Repository{session, db, u, docName}
+	return &Repository{session, db, dbName, u, docName}
 }
 
 func (repo Repository) getUserID(event *data.Event) (string, *exception.ASError) {
