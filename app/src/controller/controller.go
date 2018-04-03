@@ -260,6 +260,43 @@ func (controller Controller) HandleEEvent(c *gin.Context) {
 
 }
 
+func (controller Controller) HandleUCEvent(c *gin.Context) {
+
+	ch := controller.checkAndHandleDBError(c)
+	hasErr := <-ch
+	if hasErr {
+		return
+	}
+
+	var ucEvent data.UserCommand
+	ch1 := controller.service.ProcessReqBody(c, &ucEvent)
+	asErr := <-ch1
+	if asErr != nil {
+		controller.handleError(c, asErr)
+		return
+	}
+
+	controller.loggers.INFO.Println("User Command Event: ", ucEvent)
+
+	event := &data.Event{
+		EventType: data.UsrCmd,
+		UsrCmmand: &ucEvent,
+	}
+
+	asErr1 := controller.service.SaveEvent(event)
+	if asErr1 != nil {
+		controller.handleError(c, asErr1)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"data":   ucEvent})
+
+}
+
 /*
 	Private methods
 */

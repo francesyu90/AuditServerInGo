@@ -26,9 +26,9 @@ func getMainEngine(u *util.Utilities, loggers *util.Logger) (
 		api.POST(
 			u.GetStringConfigValue("uri.system_event"),
 			controller.HandleSEvent)
-		// api.POST(
-		// 	u.GetStringConfigValue("uri.user_command"),
-		// 	controller.HandleQSEvent)
+		api.POST(
+			u.GetStringConfigValue("uri.user_command"),
+			controller.HandleUCEvent)
 		api.POST(
 			u.GetStringConfigValue("uri.quote_server"),
 			controller.HandleQSEvent)

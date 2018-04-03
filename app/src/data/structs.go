@@ -24,7 +24,6 @@ type QuoteServerEvent struct {
 	Server               string
 	TransactionNum       int
 	QuoteServerEventTime int64
-	Command              string
 	UserId               string
 	StockSymbol          string
 	Price                string
@@ -40,4 +39,14 @@ type ErrorEvent struct {
 	StockSymbol    string
 	Funds          string
 	ErrorMessage   string
+}
+
+type UserCommand struct {
+	Timestamp      int64
+	Server         string
+	TransactionNum int
+	Command        string
+	UserId         string
+	StockSymbol    string
+	Funds          string
 }

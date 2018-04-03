@@ -51,7 +51,6 @@ type QServer struct {
 	Server          string   `xml:"server"`
 	TransactionNum  string   `xml:"transactionNum"`
 	QuoteServerTime string   `xml:"quoteServerTime"`
-	Command         string   `xml:"command,omitempty"`
 	Username        string   `xml:"username"`
 	StockSymbol     string   `xml:"stockSymbol"`
 	Price           string   `xml:"price"`
@@ -76,10 +75,8 @@ func GetUserCommand(
 	command string,
 	username string,
 	stockSymbol string,
-	funds float64,
+	funds string,
 	timestamp int64) UCommand {
-
-	fundsAsString := getFundsAsString(funds)
 
 	return UCommand{
 		Timestamp:      fmt.Sprint(timestamp),
@@ -88,7 +85,7 @@ func GetUserCommand(
 		Command:        command,
 		Username:       username,
 		StockSymbol:    stockSymbol,
-		Funds:          fundsAsString}
+		Funds:          funds}
 }
 
 func GetAccountTransaction(
@@ -131,7 +128,6 @@ func GetQuoteServer(
 	server string,
 	transactionNum int,
 	quoteServerTime int64,
-	command string,
 	username string,
 	stockSymbol string,
 	price string,
@@ -143,7 +139,6 @@ func GetQuoteServer(
 		Server:          server,
 		TransactionNum:  fmt.Sprint(transactionNum),
 		QuoteServerTime: fmt.Sprint(quoteServerTime),
-		Command:         command,
 		Username:        username,
 		StockSymbol:     stockSymbol,
 		Price:           price,

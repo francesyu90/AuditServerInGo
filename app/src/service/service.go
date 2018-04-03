@@ -88,10 +88,12 @@ func (service Service) LogAll() (*exception.ASError, *exception.ASWarning) {
 		return nil, asWarning
 	}
 
+	service.loggers.XML.Println("<log>")
 	for _, event := range events {
 		xmlString := service.getXMLEventString(event)
 		service.loggers.XML.Println(xmlString)
 	}
+	service.loggers.XML.Println("</log>")
 
 	return nil, nil
 }
@@ -159,7 +161,6 @@ func getEvent(event *data.Event) interface{} {
 			qusEvent.Server,
 			qusEvent.TransactionNum,
 			qusEvent.QuoteServerEventTime,
-			qusEvent.Command,
 			qusEvent.UserId,
 			qusEvent.StockSymbol,
 			qusEvent.Price,
@@ -176,6 +177,16 @@ func getEvent(event *data.Event) interface{} {
 			errEvent.Funds,
 			errEvent.ErrorMessage,
 			errEvent.Timestamp)
+	case data.UsrCmd:
+		ucEvent := event.UsrCmmand
+		return data.GetUserCommand(
+			ucEvent.Server,
+			ucEvent.TransactionNum,
+			ucEvent.Command,
+			ucEvent.UserId,
+			ucEvent.StockSymbol,
+			ucEvent.Funds,
+			ucEvent.Timestamp)
 	default:
 		return nil
 	}
